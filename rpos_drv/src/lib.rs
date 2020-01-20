@@ -9,7 +9,7 @@ extern crate failure;
 mod channel;
 mod prelude;
 mod ring_byte_buffer;
-mod errors;
+pub mod errors;
 
 pub use self::prelude::*;
 pub use self::channel::*;
