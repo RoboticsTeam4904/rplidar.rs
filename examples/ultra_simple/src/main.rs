@@ -42,7 +42,7 @@ fn main() {
         .write_data_terminal_ready(false)
         .expect("failed to clear DTR");
 
-    let channel = Channel::<RplidarHostProtocol, serialport::SerialPort>::new(
+    let channel = Channel::new(
         RplidarHostProtocol::new(),
         serial_port,
     );
