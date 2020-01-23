@@ -111,7 +111,7 @@ fn angle_q16_to_angle_z_q14(angle_q16: u32) -> u16 {
 }
 
 fn to_hq(node: &ParsedNode, cur_angle_raw_q16: u32, angle_inc_q16: u32) -> RplidarResponseMeasurementNodeHq {
-    let angle_q16 = (cur_angle_raw_q16 as i32) - (node.angle_offset_q16 as f64 * 180f64 / PI) as i32;
+    let angle_q16 = (cur_angle_raw_q16 as i32) - (node.angle_offset_q16 as f64) as i32;
     let sync = check_sync(cur_angle_raw_q16, angle_inc_q16);
 
     RplidarResponseMeasurementNodeHq {
