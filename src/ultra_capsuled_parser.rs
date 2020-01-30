@@ -1,12 +1,37 @@
 use super::CachedPrevCapsule;
-use super::answers::{RplidarResponseUltraCapsuleMeasurementNodes, RplidarResponseMeasurementNodeHq};
-use super::capsuled_parser::{ angle_diff_q8, check_sync, generate_quality, generate_flag };
+use super::answers::*;
 
 const PI:f64 = 3.1415926535;
 
 struct ParsedNode {
     pub dist_q2: u32,
     pub angle_offset_q16: i32
+}
+
+const ANGLE_360_Q8: u32 = (360u32 << 8);
+const ANGLE_360_Q16: u32 = (360u32 << 16);
+
+pub fn angle_diff_q8(prev_q8: u32, cur_q8: u32) -> u32 {
+    if prev_q8 > cur_q8 {
+        ANGLE_360_Q8 + cur_q8 - prev_q8
+    } else {
+        cur_q8 - prev_q8
+    }
+}
+
+pub fn check_sync(cur_angle_q16: u32, angle_inc_q16: u32) -> bool {
+    ((cur_angle_q16 + angle_inc_q16) % ANGLE_360_Q16) < angle_inc_q16
+}
+pub fn generate_quality(dist_q2: u32) -> u8 {
+    if dist_q2 != 0 {
+        (0x2fu8 << RPLIDAR_RESP_MEASUREMENT_QUALITY_SHIFT)
+    } else {
+        0u8
+    }
+}
+
+pub fn generate_flag(sync: bool) -> u8 {
+    if sync { 1u8 } else { 0u8 }
 }
 
 fn get_start_angle_q8(nodes: &RplidarResponseUltraCapsuleMeasurementNodes) -> u32 {
