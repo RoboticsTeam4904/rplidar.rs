@@ -12,6 +12,7 @@ mod checksum;
 mod cmds;
 mod errors;
 mod internals;
+mod ns_capsuled_parser;
 mod prelude;
 mod protocol;
 mod ultra_capsuled_parser;
@@ -27,6 +28,7 @@ use self::capsuled_parser::parse_capsuled;
 use self::checksum::Checksum;
 use self::cmds::*;
 use self::internals::*;
+use self::ns_capsuled_parser::CapsuledParser;
 pub use self::protocol::RplidarHostProtocol;
 use self::ultra_capsuled_parser::parse_ultra_capsuled;
 use byteorder::{ByteOrder, LittleEndian};
@@ -40,11 +42,11 @@ use std::time::{Duration, Instant};
 const RPLIDAR_GET_LIDAR_CONF_START_VERSION: u16 = ((1 << 8) | (24)) as u16;
 
 /// Rplidar device driver
-#[derive(Debug)]
 pub struct RplidarDevice<T: ?Sized> {
     channel: Channel<RplidarHostProtocol, T>,
     cached_measurement_nodes: VecDeque<ScanPoint>,
     cached_prev_capsule: CachedPrevCapsule,
+    capsuled_parser: Option<CapsuledParser>,
 }
 
 macro_rules! parse_resp_data {
@@ -109,6 +111,7 @@ where
             channel: channel,
             cached_measurement_nodes: VecDeque::with_capacity(RPLIDAR_DEFAULT_CACHE_DEPTH),
             cached_prev_capsule: CachedPrevCapsule::None,
+            capsuled_parser: None,
         }
     }
 
@@ -521,8 +524,14 @@ where
 
     /// when capsuled measurement response received
     fn on_measurement_capsuled(&mut self, nodes: RplidarResponseCapsuleMeasurementNodes) {
-        let (parsed_nodes, new_cached_capsuled) = parse_capsuled(&self.cached_prev_capsule, nodes);
-        self.cached_prev_capsule = new_cached_capsuled;
+        // let (parsed_nodes, new_cached_capsuled) = parse_capsuled(&self.cached_prev_capsule, nodes);
+        // self.cached_prev_capsule = new_cached_capsuled;
+
+        if self.capsuled_parser.is_none() {
+            self.capsuled_parser = Some(CapsuledParser::new());
+        }
+
+        let parsed_nodes = self.capsuled_parser.as_mut().unwrap().parse(nodes);
 
         for node in parsed_nodes {
             self.on_measurement_node_hq(node);

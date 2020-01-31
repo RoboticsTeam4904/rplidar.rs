@@ -16,12 +16,20 @@ impl ScanPoint {
         return self.angle_z_q14 as f32 * 90. / (1 << 14) as f32 * PI / 180.;
     }
 
+    pub fn raw_angle(&self) -> f32 {
+        self.angle_z_q14 as f32
+    }
+
     pub fn set_angle(&mut self, angle: f32) {
         self.angle_z_q14 = ((angle * 180. / PI) * (1 << 14) as f32 / 90.) as u16;
     }
 
     pub fn distance(&self) -> f32 {
         return (self.dist_mm_q2 as f32) / 4000f32;
+    }
+
+    pub fn raw_distance(&self) -> f32 {
+        self.dist_mm_q2 as f32
     }
 
     pub fn set_distance(&mut self, dist: f32) {
