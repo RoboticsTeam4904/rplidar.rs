@@ -42,7 +42,7 @@ use std::time::{Duration, Instant};
 const RPLIDAR_GET_LIDAR_CONF_START_VERSION: u16 = ((1 << 8) | (24)) as u16;
 
 /// Rplidar device driver
-pub struct RplidarDevice<T: ?Sized> {
+pub struct RplidarDevice<T> {
     channel: Channel<RplidarHostProtocol, T>,
     cached_measurement_nodes: VecDeque<ScanPoint>,
     cached_prev_capsule: CachedPrevCapsule,
@@ -94,7 +94,7 @@ impl From<RplidarResponseMeasurementNodeHq> for ScanPoint {
     }
 }
 
-impl<T: ?Sized> RplidarDevice<T>
+impl<T> RplidarDevice<T>
 where
     T: Read + Write,
 {
@@ -122,7 +122,7 @@ where
     /// let mut serial_port = serialport::open(serial_port_name)?;
     /// let rplidar_device = RplidarDevice::with_stream(serial_port);
     /// ```
-    pub fn with_stream(stream: Box<T>) -> RplidarDevice<T> {
+    pub fn with_stream(stream: T) -> RplidarDevice<T> {
         RplidarDevice::<T>::new(rpos_drv::Channel::new(RplidarHostProtocol::new(), stream))
     }
 

@@ -18,13 +18,13 @@ const DEFAULT_CHANNEL_READ_BUFFER_SIZE: usize = 1024;
 /// channel.write(&Message::new(1)).unwrap();
 /// ```
 #[derive(Debug)]
-pub struct Channel<P, T: ?Sized> {
+pub struct Channel<P, T> {
     protocol: P,
-    stream: Box<T>,
+    stream: T,
     read_buffer: RingByteBuffer,
 }
 
-impl<P, T: ?Sized> Channel<P, T>
+impl<P, T> Channel<P, T>
 where
     P: ProtocolDecoder + ProtocolEncoder,
     T: io::Read + io::Write
@@ -38,7 +38,7 @@ where
     ///     serial_port
     /// );
     /// ```
-    pub fn new(protocol: P, stream: Box<T>) -> Channel<P, T> {
+    pub fn new(protocol: P, stream: T) -> Channel<P, T> {
         Channel::with_read_buffer_size(protocol, stream, DEFAULT_CHANNEL_READ_BUFFER_SIZE)
     }
 
@@ -54,7 +54,7 @@ where
     /// ```
     pub fn with_read_buffer_size(
         protocol: P,
-        stream: Box<T>,
+        stream: T,
         read_buffer_size: usize,
     ) -> Channel<P, T> {
         let mut chn = Channel {
