@@ -28,6 +28,8 @@ impl CapsuledParser {
     ) -> Vec<RplidarResponseMeasurementNodeHq> {
         let capsule = self.parse_measurements(nodes);
 
+        println!("has previous capsule? {}", self.prev_capsule.is_some());
+
         let prev_capsule = match &self.prev_capsule {
             Some(prev) => prev,
             None => {
@@ -49,6 +51,8 @@ impl CapsuledParser {
                 let angle = prev_capsule.start_angle + (angle_ratio * index as f32) - cabin.angle;
                 let dist = cabin.distance;
                 let flag = (index == 0 && is_new_scan) as u8;
+
+                println!("Angle: {:5.2}, Distance: {:8.4}", angle, dist);
 
                 RplidarResponseMeasurementNodeHq {
                     angle_z_q14: angle as u16,
@@ -113,8 +117,8 @@ impl CapsuledParser {
         let angle1 = (cabin.offset_angles_q3 & 0xf) as u16 | ((cabin.distance_angle_1 & 0x3) << 4);
         let angle2 = (cabin.offset_angles_q3 >> 4) as u16 | ((cabin.distance_angle_2 & 0x3) << 4);
 
-        // divide angles by 8 here?
+        // Not sure why we need to divide by 8 here honestly.
         // Convert to i32 first (because the angles are signed) and then to float
-        ((angle1 as i32) as f32, (angle2 as i32) as f32)
+        ((angle1 as i32) as f32 / 8., (angle2 as i32) as f32 / 8.)
     }
 }
