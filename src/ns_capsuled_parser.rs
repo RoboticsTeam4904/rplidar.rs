@@ -28,8 +28,6 @@ impl CapsuledParser {
     ) -> Vec<RplidarResponseMeasurementNodeHq> {
         let capsule = self.parse_measurements(nodes);
 
-        println!("has previous capsule? {}", self.prev_capsule.is_some());
-
         let prev_capsule = match &self.prev_capsule {
             Some(prev) => prev,
             None => {
@@ -51,8 +49,6 @@ impl CapsuledParser {
                 let angle = prev_capsule.start_angle + (angle_ratio * index as f32) - cabin.angle;
                 let dist = cabin.distance;
                 let flag = (index == 0 && is_new_scan) as u8;
-
-                println!("Angle: {:5.2}, Distance: {:8.4}", angle, dist);
 
                 RplidarResponseMeasurementNodeHq {
                     angle_z_q14: angle as u16,
